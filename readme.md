@@ -24,7 +24,7 @@ The application uses ExifTool.exe to actually read and update the attributes of 
     </li>
     <li>
         <p>
-            Tests - not sure about the coverage and mostly they are very much at integration level truly doing heavy I/O operations
+            Tests - not sure about the coverage and mostly it is that they are very much at integration level truly doing heavy I/O operations
         </p>
     </li>
     <li>
@@ -61,7 +61,12 @@ The application uses ExifTool.exe to actually read and update the attributes of 
     </li>
     <li>
         <p>
-            make cross platform
+            add an interactive mode with GUI to see and manually manipulate an image
+        </p>
+    </li>
+    <li>
+        <p>
+            make it cross platform
         </p>
     </li>
 </ol>
