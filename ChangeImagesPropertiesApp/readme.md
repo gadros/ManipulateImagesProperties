@@ -1,42 +1,5 @@
 ﻿old picture meta-data reading and updating<br />
 set meta-data to old images so they will automatically arrange when uploading them google photos<br />
-<head>
-    <style type="text/css">
-        .auto-style1 {}
-        .auto-style2 {
-            direction: ltr;
-            text-decoration: underline;
-        }
-        .auto-style3 {
-            direction: ltr;
-        }
-    </style>
-</head>
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChangeImagesPropertiesApp
-{
-    public partial class readme: Component
-    {    
-        public readme()
-        {
-            InitializeComponent();
-        }
-
-        public readme(IContainer container)
-        {
-            container.Add(this);
-
-            InitializeComponent();
-        }
-    }
-}
 <p class="auto-style1">
     <strong>Description:</strong></p>
 <p class="auto-style3">
