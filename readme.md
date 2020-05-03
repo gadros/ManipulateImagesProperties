@@ -15,7 +15,7 @@ The application uses ExifTool.exe to actually read and update the attributes of 
     open issues:
 </p>
 <ol>
-    <li>Character encoding - currently is hard-coded to support Hebrew when writing the values of the title, description... of the image</li>
+    <li>Character encoding - need to be tested with other languages (tested only with Hebrew)</li>
     <li>Currently it works from the command-line to support operating on a folder hierarchy. need to support a windowed mode where you could see/preview the image and allow to manually set the attributes.</li>
     <li>
         <p>
@@ -29,12 +29,17 @@ The application uses ExifTool.exe to actually read and update the attributes of 
     </li>
     <li>
         <p>
-            figuring out the title for the image
+            setting the title of the image
         </p>
         <ol>
             <li>
                 <p>
                     should become optional
+                </p>
+            </li>
+            <li>
+                <p>
+                    the same value is set to: title, description, EXIF:XPTitle and EXIF:XPSubject
                 </p>
             </li>
             <li>
@@ -54,6 +59,11 @@ The application uses ExifTool.exe to actually read and update the attributes of 
 <p>
     <span class="auto-style1">future directions (assuming the above are handled)</span>:</p>
 <ol>
+    <li>
+        <p>
+            sometimes an image has a 'date taken' value, only that the digital camera's date is wrong. implement an easy way to drop (or accept) many image files and clear this value. so that a subsequent run will calculate and set them (because currently any value > 1/1/1800 is honored and not updated.
+        </p>
+    </li>
     <li>
         <p>
             become an add-in to IrfanViewer

@@ -19,6 +19,7 @@ namespace AssignDatesToImagesTests
         public static string GadBrit = "1963_1967_1.jpg";
         public static string YearUnderscoreMonthUnderscoreAndHebrewCharacters = "פיקניק_סחנה_07_1962.jpg";
         public static string NoDateHint = "NoDateHint.jpg";
+        public static string NameIsDSCHasValidDate = "DSC00720.JPG";
     }
 
     internal class ImagePropertiesValidator

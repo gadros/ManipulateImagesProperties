@@ -3,16 +3,17 @@
   <Description>These are default test settings for a local test run.</Description>
   <Deployment>
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\גרטה_שמואל_1976.jpg" />
-    <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\אלון ןחיים 1990.jpg" />
+    <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\DSC00720.JPG" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\חיים וברוך 1990.jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\Leah_SmallChild.jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\בית_גרטה_פריץ_בנימינה_1936.jpg" />
+    <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\1963_1967_1.jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\1977_1980_1.jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\אלון_טכניון_1990.jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\Leah_OnShip_1957.jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\פיקניק_סחנה_07_1962.jpg" />
     <DeploymentItem filename="exiftool\exiftool.exe" />
-    <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\1963_1967_1.jpg" />
+    <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\אלון ןחיים 1990.jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\Zelma_Rosenthal_(Koon).jpg" />
     <DeploymentItem filename="AssignDatesToImagesTests\TestingImages\NoDateHint.jpg" />
   </Deployment>

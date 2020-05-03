@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NLog;
 
 namespace ImageFilePropertiesQueryAndEdit
 {
@@ -15,9 +16,12 @@ namespace ImageFilePropertiesQueryAndEdit
             Failure
         }
 
+        public const string DefaultDigitalCameraFileNamePrefix = "dsc";
+
         private const string c_EXIF_DTOrig_Format = "yyyy:MM:dd HH:mm:ss";
         private const int c_EXIF_DTOrig = 36867;
         private static readonly Regex s_colonRegEx = new Regex(":");
+        private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
 
         /* references related to getting or manipulating metadata of images
          * 2020-04-29: maybe should be deleted. didn't look at what's here in a long while
@@ -46,7 +50,7 @@ namespace ImageFilePropertiesQueryAndEdit
         private FileInfo m_imageFileInfo;
         private readonly ImageProperties m_imageProperties;
 
-        private static readonly DateTime s_minDateToTriggerDateChange = new DateTime(2010, 1, 1);
+        private static readonly DateTime s_minDateToTriggerDateChange = new DateTime(1800, 1, 1);
         private ImageProperties m_originalImageProperties;
         private readonly bool m_simulationMode;
 
@@ -64,7 +68,7 @@ namespace ImageFilePropertiesQueryAndEdit
 
             if (needToSetTitle || needToSetDateTaken)
             {
-                return UpdateImageAttributes();
+                return UpdateImageAttributes(needToSetDateTaken, needToSetTitle);
             }
 
             return PropertiesChangeResult.NoNeed;
@@ -132,43 +136,50 @@ namespace ImageFilePropertiesQueryAndEdit
             return runExifTool.SetTitle(valueForTitle);
         }
 
-        private PropertiesChangeResult UpdateImageAttributes()
+        private PropertiesChangeResult UpdateImageAttributes(bool needToSetDateTaken, bool needToSetTitle)
         {
-            string valueForTitle = GetValueForTitle();
-            DateTime valueForDateTaken = GetValueForDateTaken();
-            if (!string.IsNullOrEmpty(valueForTitle) || valueForDateTaken != DateTime.MinValue)
+            DateTime valueForDateTaken = DateTime.MinValue;
+            if (needToSetDateTaken)
             {
-                var runExifTool = new RunExifTool(m_imageFileName, m_simulationMode);
-                bool operationResult;
-
-                if (!string.IsNullOrEmpty(valueForTitle) && valueForDateTaken != DateTime.MinValue)
-                {
-                    operationResult = runExifTool.SetDateAndTitle(valueForTitle, valueForDateTaken);
-                }
-                else if (valueForDateTaken == DateTime.MinValue)
-                {
-                    operationResult = runExifTool.SetTitle(valueForTitle);
-                }
-                else
-                {
-                    operationResult = runExifTool.SetDateTaken(valueForDateTaken); 
-                }
-
-                return operationResult ? PropertiesChangeResult.Success : PropertiesChangeResult.Failure;
+                valueForDateTaken = GetValueForDateTaken();
             }
 
-            return PropertiesChangeResult.Failure;
+            string valueForTitle = null;
+            if (needToSetTitle)
+            {
+                valueForTitle = GetValueForTitle();
+            }
+
+            if (string.IsNullOrEmpty(valueForTitle) && valueForDateTaken == DateTime.MinValue)
+            {
+                string expectedToChangeValue = string.Concat(needToSetDateTaken ? "date taken " : null, needToSetTitle ? "title" : null);
+                s_logger.Debug($"not changing {m_imageFileName} because didn't find meaningful values (expected to change {expectedToChangeValue})");
+                return PropertiesChangeResult.NoNeed;
+            }
+
+            var runExifTool = new RunExifTool(m_imageFileName, m_simulationMode);
+            bool operationResult;
+
+            if (!string.IsNullOrEmpty(valueForTitle) && valueForDateTaken != DateTime.MinValue)
+            {
+                operationResult = runExifTool.SetDateAndTitle(valueForTitle, valueForDateTaken);
+            }
+            else if (valueForDateTaken == DateTime.MinValue)
+            {
+                operationResult = runExifTool.SetTitle(valueForTitle);
+            }
+            else
+            {
+                operationResult = runExifTool.SetDateTaken(valueForDateTaken);
+            }
+
+            return operationResult ? PropertiesChangeResult.Success : PropertiesChangeResult.Failure;
         }
 
         private bool NeedToSetDateTaken()
         {
             DateTime dateTaken = m_originalImageProperties.DateTaken;
-            if (dateTaken == DateTime.MinValue)
-            {
-                return true;
-            }
-            bool needToSetDateTaken = dateTaken > s_minDateToTriggerDateChange;
-            return needToSetDateTaken;
+            return dateTaken == DateTime.MinValue || dateTaken < s_minDateToTriggerDateChange;
         }
 
         private DateTime GetValueForDateTaken()
@@ -232,7 +243,18 @@ namespace ImageFilePropertiesQueryAndEdit
             }
 
             fileName = fileName.Substring(0, fileName.Length - imageFileInfo.Extension.Length);
+            int dscLocation = fileName.ToLower().IndexOf(DefaultDigitalCameraFileNamePrefix);
+            if (dscLocation > -1)
+            {
+                fileName = fileName.Remove(dscLocation, 3);
+            }
+
             fileName = RemoveDateNameParts(fileName);
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return null;
+            }
+
             string[] nameParts = fileName.Substring(0, fileName.Length)
                 .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < nameParts.Length; i++)
@@ -246,6 +268,11 @@ namespace ImageFilePropertiesQueryAndEdit
                 || char.IsDigit(nameParts[nameParts.Length - 1][nameParts[nameParts.Length - 1].Length - 1]))
             {
                 ClearLastPartsThatAreFluff(nameParts);
+            }
+
+            if (nameParts.All(string.IsNullOrEmpty))
+            {
+                return null;
             }
 
             return string.Join(" ", nameParts.Where(part => !string.IsNullOrEmpty(part)));

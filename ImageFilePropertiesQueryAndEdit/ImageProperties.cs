@@ -121,8 +121,11 @@ namespace ImageFilePropertiesQueryAndEdit
             if (property != null)
             {
                 int colonLocation = property.IndexOf(':');
-                m_imageProperties.Add(exifToolPropertyName,
-                        property.Substring(colonLocation + 1, property.Length - colonLocation - 1).Trim());
+                string propertyValue = property.Substring(colonLocation + 1, property.Length - colonLocation - 1).Trim();
+                if (!string.IsNullOrEmpty(propertyValue))
+                {
+                    m_imageProperties.Add(exifToolPropertyName, propertyValue);
+                }
             }
         }
 

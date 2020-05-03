@@ -183,7 +183,7 @@ namespace ImageFilePropertiesQueryAndEdit
                 return false;
             }
 
-            if(s_debugLoggingActive) s_logger.Debug($"successfully updated: {m_imageFileName}");
+            if(s_debugLoggingActive && !m_simulationMode) s_logger.Debug($"successfully updated: {m_imageFileName}");
             return true;
         }
 
@@ -194,7 +194,7 @@ namespace ImageFilePropertiesQueryAndEdit
 
         private string GetSetStatementForTitle(string title)
         {
-            return $"-EXIF:XPTitle={title}\n-Description={title}\n-Title={title}\n";
+            return $"-EXIF:XPTitle={title}\n-Description={title}\n-Title={title}\n-EXIF:XPSubject={title}";
         }
 
         public bool SetDateAndTitle(string titleValue, DateTime dateTaken)

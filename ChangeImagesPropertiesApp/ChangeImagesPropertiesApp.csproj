@@ -51,9 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="readme.md">
-      <SubType>Component</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Shell32">

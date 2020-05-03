@@ -11,23 +11,18 @@ namespace AssignDatesToImagesTests
         [TestMethod]
         public void MoveImageSubjectToTitle_Exists_TitleIsFilled()
         {
-            var expectedImageDate = new DateTime(1952, 10, 21); //we require 8 digit chars
-            string testImage = $"{expectedImageDate.Year}{expectedImageDate.Month}{expectedImageDate.Day}_MoveSubjectToTitle.jpg";
+            string testImage = "_MoveSubjectToTitle.jpg";
             File.Copy(TestingImagesNames.LeahOnShip1957, testImage);
-            new RunExifTool(testImage, false).SetDateAndTitle(string.Empty, DateTime.MinValue);
 
             var imageProperties1 = new ImageProperties(testImage);
-            Assert.IsNotNull(imageProperties1.Subject);
             Assert.IsNull(imageProperties1.ExTitle);
-
+            string expectedTitle = imageProperties1.Subject;
             var sut = new ImageFilePropertiesChanger(testImage, false);
             sut.ChangeImageProperties();
 
             var imageProps = new ImageProperties(testImage);
-            Assert.AreEqual(expectedImageDate, imageProps.DateTaken);
 
-            string subject = imageProperties1.Subject;
-            Assert.AreEqual(subject, imageProps.ExTitle);
+            Assert.AreEqual(expectedTitle, imageProps.ExTitle);
         }
 
         [TestMethod]
@@ -123,22 +118,47 @@ namespace AssignDatesToImagesTests
             string imageFileName = "__7_0134.jpg";
             File.Copy(noDateNoTitle, imageFileName);
             var sut = new ImageFilePropertiesChanger(imageFileName, true);
-            Assert.AreEqual(string.Empty, sut.GetValueForTitle());
+            Assert.AreEqual(null, sut.GetValueForTitle());
 
             imageFileName = "10A_0216.jpg";
             File.Copy(noDateNoTitle, imageFileName);
             sut = new ImageFilePropertiesChanger(imageFileName, true);
-            Assert.AreEqual(string.Empty, sut.GetValueForTitle());
+            Assert.AreEqual(null, sut.GetValueForTitle());
 
             imageFileName = "22A_0386.jpg";
             File.Copy(noDateNoTitle, imageFileName);
             sut = new ImageFilePropertiesChanger(imageFileName, true);
-            Assert.AreEqual(string.Empty, sut.GetValueForTitle());
+            Assert.AreEqual(null, sut.GetValueForTitle());
 
             imageFileName = "F1000019.JPG";
             File.Copy(noDateNoTitle, imageFileName);
             sut = new ImageFilePropertiesChanger(imageFileName, true);
-            Assert.AreEqual(string.Empty, sut.GetValueForTitle());
+            Assert.AreEqual(null, sut.GetValueForTitle());
+        }
+
+        [TestMethod]
+        public void SuggestTitle_FromFileName_OnlyDSC_SuggestEmpty()
+        {
+            string digitalCameraDefaultPrefix = ImageFilePropertiesChanger.DefaultDigitalCameraFileNamePrefix + ".jpg";
+            File.Copy(TestingImagesNames.NameIsDSCHasValidDate, digitalCameraDefaultPrefix);
+            ImageFilePropertiesChanger sut = new ImageFilePropertiesChanger(digitalCameraDefaultPrefix, true);
+            Assert.IsNull(sut.GetValueForTitle());
+        }
+
+        [TestMethod]
+        public void SuggestTitle_FromFileName_DSCAndDigits_SuggestEmpty()
+        {
+            string digitalCameraDefaultPrefix = ImageFilePropertiesChanger.DefaultDigitalCameraFileNamePrefix + "0023.jpg";
+            File.Copy(TestingImagesNames.NameIsDSCHasValidDate, digitalCameraDefaultPrefix);
+            ImageFilePropertiesChanger sut = new ImageFilePropertiesChanger(digitalCameraDefaultPrefix, true);
+            Assert.IsNull(sut.GetValueForTitle());
+        }
+
+        [TestMethod]
+        public void ChangeProperties_DateExists_DSCAndDigits_NoChangeToProperties()
+        {
+            ImageFilePropertiesChanger sut = new ImageFilePropertiesChanger(TestingImagesNames.NameIsDSCHasValidDate, true);
+            Assert.AreEqual(ImageFilePropertiesChanger.PropertiesChangeResult.NoNeed, sut.ChangeImageProperties());
         }
     }
 }
