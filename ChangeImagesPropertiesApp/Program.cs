@@ -76,7 +76,8 @@ namespace ChangeImagesPropertiesApp
 
             if (args.Length == 1)
             {
-                string param0 = args[0];
+                string param0 = args[0].Split(new []{' '})[0];
+
                 if (param0.ToLower() == "help" || param0.Contains("?"))
                 {
                     return (ExecuteProgram.ShowHelp, null, true);
@@ -103,8 +104,9 @@ namespace ChangeImagesPropertiesApp
             return (ExecuteProgram.Yes, resultOfParseParam0.rootFolder, simulation);
         }
 
-        private static (ExecuteProgram execute, string rootFolder, bool simulation) GetFolderParameter(string param0)
+        private static (ExecuteProgram execute, string rootFolder, bool simulation) GetFolderParameter(string firstParameter)
         {
+            string param0 = firstParameter;
             if (!param0.StartsWith($"{c_rootFolderParamPrefix}=") || param0.Length < c_rootFolderParamPrefix.Length + 2)
             {
                 Console.WriteLine("failed recognizing the root folder parameter\n\n");
@@ -122,6 +124,11 @@ namespace ChangeImagesPropertiesApp
             if (param0[0] == '"'  && param0[param0.Length-1] == '"')
             {
                 param0 = param0.Substring(1, param0.Length - 2);
+            }
+
+            if (param0[param0.Length-1] == '\\' || param0[param0.Length-1] == '"' )
+            {
+                param0 = param0.Substring(0, param0.Length - 1);
             }
 
             if (!CheckFolderExists(param0))

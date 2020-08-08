@@ -11,7 +11,7 @@ namespace ChangeImagesPropertiesApp
     {
         private static readonly Logger s_logger = LogManager.GetCurrentClassLogger();
         //TODO: make this configurable?
-        private static readonly string[] s_extensionsOfFilesToManipulate = { ".jpg"/* ,".avi" isn't supported */, ".mp4", ".mpg"};
+        private static readonly string[] s_extensionsOfFilesToManipulate = { ".jpg", ".png"/* ,".avi", ".mpg", "3GP" isn't supported */, ".mp4"};
         private readonly bool m_simulationOnly;
 
         public FolderHierarchyImageFilesManipulator(bool simulationOnly)

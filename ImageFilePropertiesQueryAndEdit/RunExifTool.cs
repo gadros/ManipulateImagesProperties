@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using NLog;
@@ -11,7 +12,7 @@ namespace ImageFilePropertiesQueryAndEdit
     //TODO: to async?
     public class RunExifTool
     {
-        const string c_exifToolFileName = @".\exiftool.exe";
+        const string c_exifToolFileName = "exiftool.exe";
 
         private static readonly Logger s_logger;
         private static readonly bool s_debugLoggingActive;
@@ -20,11 +21,19 @@ namespace ImageFilePropertiesQueryAndEdit
         {
             s_logger = LogManager.GetCurrentClassLogger();
             s_debugLoggingActive = s_logger.IsDebugEnabled;
+            Assembly entryAssembly = Assembly.GetEntryAssembly();
+            s_exifToolFullPath = @".\" + c_exifToolFileName;
+            if (entryAssembly != null)
+            {
+                string exifToolFullPath = entryAssembly.Location;
+                s_exifToolFullPath = Path.Combine( exifToolFullPath.Substring(0, exifToolFullPath.LastIndexOf('\\')),c_exifToolFileName);
+            }
         }
 
         private readonly string m_imageFileName;
         private string m_exifOutput;
         private readonly bool m_simulationMode;
+        private static readonly string s_exifToolFullPath;
 
         public RunExifTool(string imageFileName, bool simulationMode)
         {
@@ -70,7 +79,7 @@ namespace ImageFilePropertiesQueryAndEdit
             using (var fs = new StreamWriter(tempFileName))
             {
                 fs.WriteLine(m_imageFileName);
-                if (s_debugLoggingActive) s_logger.Debug($"exiftool arguments:\n{exifToolArguments}");
+                if (s_debugLoggingActive) s_logger.Debug($"exiftool arguments:{Environment.NewLine}{exifToolArguments}");
                 if(writeArgumentsToFile) fs.WriteLine(exifToolArguments);
             }
 
@@ -94,7 +103,7 @@ namespace ImageFilePropertiesQueryAndEdit
         {
             var psi = new ProcessStartInfo
             {
-                FileName = c_exifToolFileName,
+                FileName = s_exifToolFullPath,
                 UseShellExecute = false,
                 Arguments = arguments,
                 StandardOutputEncoding = Encoding.UTF8,
@@ -129,7 +138,7 @@ namespace ImageFilePropertiesQueryAndEdit
                 }
 
                 m_exifOutput = output;
-                if(s_debugLoggingActive) s_logger.Debug($"metadata of {m_imageFileName}:\n{m_exifOutput}");
+                if(s_debugLoggingActive) s_logger.Debug($"metadata of {m_imageFileName}:{Environment.NewLine}{m_exifOutput}");
             }
             catch (Exception e)
             {
@@ -145,7 +154,7 @@ namespace ImageFilePropertiesQueryAndEdit
             arguments = "-overwrite_original_in_place " + arguments;
             var psi = new ProcessStartInfo
             {
-                FileName = c_exifToolFileName,
+                FileName = s_exifToolFullPath,
                 UseShellExecute = false,
                 Arguments = arguments,
                 WindowStyle = ProcessWindowStyle.Hidden,
@@ -194,7 +203,7 @@ namespace ImageFilePropertiesQueryAndEdit
 
         private string GetSetStatementForTitle(string title)
         {
-            return $"-EXIF:XPTitle={title}\n-Description={title}\n-Title={title}\n-EXIF:XPSubject={title}";
+            return $"-EXIF:XPTitle={title}{Environment.NewLine}-Description={title}{Environment.NewLine}-Title={title}{Environment.NewLine}-EXIF:XPSubject={title}";
         }
 
         public bool SetDateAndTitle(string titleValue, DateTime dateTaken)
@@ -204,7 +213,7 @@ namespace ImageFilePropertiesQueryAndEdit
                 string updateDateCreatedParameter = GetCreatedDateForUpdate(dateTaken);
                 if (!string.IsNullOrEmpty(titleValue))
                 {
-                    return RunUpdateUsingAFile($"{updateDateCreatedParameter}\n{GetSetStatementForTitle(titleValue)}");
+                    return RunUpdateUsingAFile($"{updateDateCreatedParameter}{Environment.NewLine}{GetSetStatementForTitle(titleValue)}");
                 }
 
                 return RunUpdateUsingAFile($"{updateDateCreatedParameter}");
@@ -216,7 +225,7 @@ namespace ImageFilePropertiesQueryAndEdit
         private string GetCreatedDateForUpdate(DateTime dateTaken)
         {
             string dateTakenString = $"{dateTaken.Year}:{dateTaken.Month}:{dateTaken.Day} 12:0:0";
-            return $"-EXIF:CreateDate={dateTakenString}\n-DateTimeOriginal={dateTakenString}";
+            return $"-EXIF:CreateDate={dateTakenString}{Environment.NewLine}-DateTimeOriginal={dateTakenString}";
         }
 
         public bool SetDateTaken(DateTime dateTaken)

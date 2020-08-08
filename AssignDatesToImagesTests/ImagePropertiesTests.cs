@@ -10,13 +10,35 @@ namespace AssignDatesToImagesTests
     public class ImagePropertiesTests
     {
         [TestMethod]
-        public void GetImageProperties_SetTitleAndDate_ValuesMatch()
+        public void SetImageProperties_SetTitleAndDate_ValuesMatch()
         {
             string imageFileName = "SetTitleAndDate.jpg";
             File.Copy(TestingImagesNames.LeahOnShip1957, imageFileName);
 
             var runExifTool = new RunExifTool(imageFileName, false);
             const string testHadSetTitle = "Test Had Set ExTitle";
+            DateTime expectedDateTaken = new DateTime(1980, 12, 12);
+            runExifTool.SetDateAndTitle(testHadSetTitle, expectedDateTaken);
+            var imageProperties = new ImageProperties(imageFileName);
+            Assert.AreEqual(testHadSetTitle, imageProperties.ExTitle);
+            Assert.AreEqual(expectedDateTaken, imageProperties.DateTaken);
+        }
+
+        [TestMethod]
+        public void SetImageProperties_FullFileNamePathContainsSpacesAndHebrew_SetTitleAndDate_ValuesMatch()
+        {
+            const string subFolder = "20080328 מרפסת ותפלץ\\20080328";
+            string copyToFolder = Path.Combine(Environment.CurrentDirectory, subFolder);
+            if (!Directory.Exists(copyToFolder))
+            {
+                Directory.CreateDirectory(copyToFolder);
+            }
+
+            string imageFileName = Path.Combine(copyToFolder, TestingImagesNames.LeahOnShip1957);
+            File.Copy(TestingImagesNames.LeahOnShip1957, imageFileName);
+
+            var runExifTool = new RunExifTool(imageFileName, false);
+            const string testHadSetTitle = "דפנה לולו";
             DateTime expectedDateTaken = new DateTime(1980, 12, 12);
             runExifTool.SetDateAndTitle(testHadSetTitle, expectedDateTaken);
             var imageProperties = new ImageProperties(imageFileName);
@@ -35,7 +57,5 @@ namespace AssignDatesToImagesTests
             string msg = iso.GetString(isoBytes);
             Console.WriteLine(msg);
         }
-
-    
     }
 }
