@@ -26,7 +26,8 @@ namespace ImageFilePropertiesQueryAndEdit
             if (entryAssembly != null)
             {
                 string exifToolFullPath = entryAssembly.Location;
-                s_exifToolFullPath = Path.Combine( exifToolFullPath.Substring(0, exifToolFullPath.LastIndexOf('\\')),c_exifToolFileName);
+                //TODO: see if can be replaced by Path.GetFullPath(). consider .Net standard
+                s_exifToolFullPath = Path.Combine(exifToolFullPath.Substring(0, exifToolFullPath.LastIndexOf('\\')), c_exifToolFileName);
             }
         }
 
@@ -79,13 +80,21 @@ namespace ImageFilePropertiesQueryAndEdit
             using (var fs = new StreamWriter(tempFileName))
             {
                 fs.WriteLine(m_imageFileName);
-                if (s_debugLoggingActive) s_logger.Debug($"exiftool arguments:{Environment.NewLine}{exifToolArguments}");
+                if (s_debugLoggingActive) s_logger.Debug($"exiftool arguments: {exifToolArguments}");
                 if(writeArgumentsToFile) fs.WriteLine(exifToolArguments);
             }
 
-            bool querySuccess = syncExifOperation(writeArgumentsToFile
-                ? $"-charset filename=utf-8 -@ {tempFileName}"
-                : $"{exifToolArguments} -charset filename=utf-8 -@ {tempFileName}");
+            string commandLineArguments = null;
+
+            if (syncExifOperation == Update)
+                commandLineArguments = " -P ";
+            if (writeArgumentsToFile)
+                commandLineArguments = commandLineArguments + $"-charset filename=utf-8 -@ {tempFileName}";
+            else
+                commandLineArguments = commandLineArguments +
+                                       $"{exifToolArguments} -charset filename=utf-8 -@ {tempFileName}";
+
+            bool querySuccess = syncExifOperation(commandLineArguments);
 
 
             //i had a worry that the program will exit and we won't complete clearing all, but i didn't see that this is the case
@@ -133,12 +142,15 @@ namespace ImageFilePropertiesQueryAndEdit
 
                 if (p.ExitCode != 0)
                 {
-                    s_logger.Error("failed querying {0}. exit code: {1}. {2}", m_imageFileName, p.ExitCode, err);
+                    string failureMessage = $"failed querying {m_imageFileName}. exit code: {p.ExitCode}. {err}";
+                    s_logger.Error(failureMessage);
+                    System.Diagnostics.Debug.WriteLine(failureMessage);
                     return false;
                 }
 
                 m_exifOutput = output;
-                if(s_debugLoggingActive) s_logger.Debug($"metadata of {m_imageFileName}:{Environment.NewLine}{m_exifOutput}");
+                System.Diagnostics.Debug.WriteLine(m_exifOutput);
+                if (s_debugLoggingActive) s_logger.Trace($"metadata of {m_imageFileName}:{Environment.NewLine}{m_exifOutput}");
             }
             catch (Exception e)
             {
@@ -178,13 +190,15 @@ namespace ImageFilePropertiesQueryAndEdit
 
                 p.WaitForExit();
 
-                if (p.ExitCode != 0)
+                m_exifOutput = output;
+                System.Diagnostics.Debug.WriteLine(m_exifOutput);
+                if (p.ExitCode != 0 || (!string.IsNullOrWhiteSpace(err) && !(err.Contains("Warning: [minor]"))))
                 {
-                    s_logger.Error($"failed changing {m_imageFileName}. exit code: {p.ExitCode}. {err}");
+                    string message = $"failed changing {m_imageFileName}. exit code: {p.ExitCode}. {err}";
+                    System.Diagnostics.Debug.WriteLine(message);
+                    s_logger.Error(message);
                     return false;
                 }
-
-                m_exifOutput = output;
             }
             catch (Exception e)
             {
@@ -192,7 +206,7 @@ namespace ImageFilePropertiesQueryAndEdit
                 return false;
             }
 
-            if(s_debugLoggingActive && !m_simulationMode) s_logger.Debug($"successfully updated: {m_imageFileName}");
+            if(s_debugLoggingActive && !m_simulationMode) s_logger.Info($"successfully updated: {m_imageFileName}");
             return true;
         }
 

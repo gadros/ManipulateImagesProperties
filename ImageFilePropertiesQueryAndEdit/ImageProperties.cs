@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using NLog;
@@ -160,7 +161,21 @@ namespace ImageFilePropertiesQueryAndEdit
                 string dateTaken = GetImageStringProperty(ImagePropertyIds.ExifDateTaken);
                 if (dateTaken != null)
                 {
-                    return new DateTime(int.Parse(dateTaken.Substring(0, 4)), int.Parse(dateTaken.Substring(5, 2)), int.Parse(dateTaken.Substring(8, 2)));
+                    // 2009:07:27 12:00:00
+                    return DateTime.TryParseExact(dateTaken,"yyyy:MM:dd HH:mm:ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out var date) ? date : DateTime.MinValue;
+                }
+
+                return DateTime.MinValue;
+            }
+        }
+        public DateTime DateModified
+        {
+            get
+            {
+                string dateModified = GetImageStringProperty(ImagePropertyIds.ImageFileDateModified);
+                if (dateModified != null)
+                {
+                    return DateTime.TryParse(dateModified, out var date)? date: DateTime.MinValue;
                 }
 
                 return DateTime.MinValue;

@@ -31,6 +31,7 @@ namespace ImageFilePropertiesQueryAndEdit
          * show all attribute, show the attribute name: exiftool.exe "-all" -s lll.jpg
          * set date taken: exiftool.exe "-EXIF:CreateDate=1958:1:1 1:1:1" Leah.jpg
          * set date and title: exiftool.exe "-EXIF:CreateDate=1959:2:1 0:0:0" "-EXIF:XPTitle=bogobog" lll.jpg
+         * https://exiftool.org/
          * http://www.sno.phy.queensu.ca/~phil/exiftool/
          * exiv2net
          * http://stackoverflow.com/questions/180030/how-can-i-find-out-when-a-picture-was-actually-taken-in-c-sharp-running-on-vista
@@ -44,6 +45,11 @@ namespace ImageFilePropertiesQueryAndEdit
          * https://en.wikipedia.org/wiki/Exchangeable_image_file_format
          * http://stackoverflow.com/questions/5708434/how-to-use-shell32-within-a-c-sharp-application, http://stackoverflow.com/questions/2483659/interop-type-cannot-be-embedded
          * http://blog.rodhowarth.com/2008/06/how-to-set-custom-attributes-file.html
+         *
+         * https://en.wikipedia.org/wiki/Exif
+         * https://docs.microsoft.com/en-us/dotnet/api/system.drawing.imaging.propertyitem.id?view=dotnet-plat-ext-6.0
+         * https://nicholasarmstrong.com/2010/02/exif-quick-reference/
+         * https://stackoverflow.com/questions/16900291/c-sharp-image-propertyitems-metadate-how-do-you-know-which-number-is-which-pro
          */
 
         private readonly string m_imageFileName;
@@ -153,7 +159,7 @@ namespace ImageFilePropertiesQueryAndEdit
             if (string.IsNullOrEmpty(valueForTitle) && valueForDateTaken == DateTime.MinValue)
             {
                 string expectedToChangeValue = string.Concat(needToSetDateTaken ? "date taken " : null, needToSetTitle ? "title" : null);
-                s_logger.Debug($"not changing {m_imageFileName} because didn't find meaningful values (expected to change {expectedToChangeValue})");
+                s_logger.Info($"not changing {m_imageFileName} because didn't find meaningful values (expected to change {expectedToChangeValue})");
                 return PropertiesChangeResult.NoNeed;
             }
 

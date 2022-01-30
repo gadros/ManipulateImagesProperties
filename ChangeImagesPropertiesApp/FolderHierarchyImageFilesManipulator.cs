@@ -32,8 +32,6 @@ namespace ChangeImagesPropertiesApp
         /// <param name="operationOnImage"></param>
         private void OperateOnImagesInDirectoryTree(DirectoryInfo currentFolder, Action<string> operationOnImage)
         {
-            s_logger.Info($"operating on folder {currentFolder}");
-
             var files = GetImageFilesInFolder(currentFolder);
 
             Task operationOnImageFilesInCurrentFolder = null;
@@ -49,6 +47,10 @@ namespace ChangeImagesPropertiesApp
                 {
                     s_logger.Error(ae.ToString);
                 }
+            }
+            else
+            {
+                s_logger.Debug($"no files were found in {currentFolder.Name}");
             }
 
             DirectoryInfo[] subDirs = null;
@@ -145,7 +147,7 @@ namespace ChangeImagesPropertiesApp
                     try
                     {
                         string imageFileName = fi.FullName;
-                        s_logger.Info($"operating on image {imageFileName}");
+                        s_logger.Debug($"operating on {imageFileName}");
                         opOnImage(imageFileName);
                     }
                     catch (Exception e)

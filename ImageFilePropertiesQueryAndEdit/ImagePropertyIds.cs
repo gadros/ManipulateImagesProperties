@@ -9,6 +9,7 @@
         public const string Subject = "Subject";
         public const string Title = "ExTitle";
         public const string Description = "Description";
+        public const string ImageFileDateModified = "Date modified";
 
         public const string ExifToolSubject = "XPSubject";
         public const string ExifToolComment = "XPComment";
