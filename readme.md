@@ -4,6 +4,7 @@ set meta-data to old images so they will automatically arrange when uploading th
     <strong>Description:</strong></p>
 <p class="auto-style3">
     there are 2 .Net applications:
+    <br/>
     - console application that operates on image files in a folder hierarchy and attempts to set the &#39;Date Taken&#39; and &#39;Subject&#39; (and &#39;Title&#39;) attributes of the image based on the file and folder name (setting the value for &#39;Subject&#39; is only based on the file name). hopefully, values aren&#39;t modified if it fails to &#39;make sense&#39; based on these.
     - a winforms application that allows setting a value to an image EXIF CreateDate value. it previews images in a folder and navigates through them.
     <br/>
